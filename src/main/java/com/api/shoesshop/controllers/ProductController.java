@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.api.shoesshop.entities.Product;
 import com.api.shoesshop.interceptors.AuthInterceptor;
+import com.api.shoesshop.repositories.ProductRepository;
 import com.api.shoesshop.services.ProductService;
 import com.api.shoesshop.types.FindAll;
 import com.api.shoesshop.utils.Helper;
@@ -32,33 +33,42 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    ProductRepository productRepository;
+
     @GetMapping(value = "/api/product")
     public ResponseEntity<String> findAll(@RequestParam Map<String, String> query) {
-        try {
-            // if (query.get("category_alias") != null) {
-            // Page<ProductCategory> page = productCategoryService.findAll(query,
-            // variantValueIds);
-            // List<Product> products = new ArrayList<>();
-            // for (int i = 0; i < page.getContent().size(); i++) {
-            // products.add(page.getContent().get(i).getProduct());
-            // }
-            // return Helper.responseSuccess(new FindAll<>(products,
-            // page.getTotalElements()));
-            // }
-            Page<Product> page = query.get("q") != null ? productService.search(query)
-                    : productService.findAll(query);
-            return Helper.responseSuccess(new FindAll<>(page.getContent(), page.getTotalElements()));
-        } catch (Exception e) {
-            System.out.println(e);
-            return Helper.responseError();
-        }
         // try {
-        //     return Helper.responseSuccess(
-        //             new FindAll<>(productService.findAll(query), productService.findAll(query).getSize()));
+        //     // if (query.get("category_alias") != null) {
+        //     // Page<ProductCategory> page = productCategoryService.findAll(query,
+        //     // variantValueIds);
+        //     // List<Product> products = new ArrayList<>();
+        //     // for (int i = 0; i < page.getContent().size(); i++) {
+        //     // products.add(page.getContent().get(i).getProduct());
+        //     // }
+        //     // return Helper.responseSuccess(new FindAll<>(products,
+        //     // page.getTotalElements()));
+        //     // }
+        //     Page<Product> page = query.get("q") != null ? productService.search(query)
+        //             : productService.findAll(query);
+        //     return Helper.responseSuccess(new FindAll<>(page.getContent(), page.getTotalElements()));
         // } catch (Exception e) {
         //     System.out.println(e);
         //     return Helper.responseError();
         // }
+        try {
+            if(query.size()==0)
+            return Helper.responseSuccess(
+                    new FindAll<>(productRepository.findAll(), productRepository.findAll().size()));
+            else{
+                Page<Product> page = query.get("q") != null ? productService.search(query)
+                     : productService.findAll(query);
+                return Helper.responseSuccess(new FindAll<>(page.getContent(), page.getTotalElements()));
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            return Helper.responseError();
+        }
         
     }
 
